@@ -8,6 +8,7 @@
   "author": "mcc",
   "license": "CC0-1.0",
   "dependencies": {
+    "color2k": "^2.0.2",
     "preact": "^10.4.8",
     "webpack": "^4.44.1",
     "webpack-cli": "^3.3.12"

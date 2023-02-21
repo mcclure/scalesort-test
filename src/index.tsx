@@ -1,4 +1,5 @@
-import { h, render, Component } from "preact";
+import { h, render, Component } from "preact"
+import { hsla } from "color2k"
 
 declare let require:any
 
@@ -23,6 +24,7 @@ const algos = {
 }
 
 const side = 11
+const iidxMax = (side*side-1)
 
 class Content extends Component<any, any> {
   constructor(props:{}) {
@@ -50,7 +52,9 @@ class Content extends Component<any, any> {
         const t = sortMe[idx]
         const iidx = t[0]      // sorted idx
         const value = Math.round(t[1]*100)/100
-        tableRow.push(<td style="padding:10px; background-color:#BBBBBB"><b>{iidx}</b><br /><small>({value})</small></td>)
+        const color = hsla((iidx / iidxMax)*240, 1, 0.75, 1)
+        console.log({iidx, color})
+        tableRow.push(<td style={{padding:"10px", background:color}}><b>{iidx}</b><br /><small>({value})</small></td>)
       }
       tableGrid.push(<tr>{tableRow}</tr>)
     }
