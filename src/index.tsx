@@ -24,7 +24,10 @@ const algos = {
 }
 
 const side = 11
+const sideMax = (side-1)
 const iidxMax = (side*side-1)
+
+type Sortee = {idx:number, value:number, sidx?:number}
 
 class Content extends Component<any, any> {
   constructor(props:{}) {
@@ -35,26 +38,39 @@ class Content extends Component<any, any> {
   render() {
     const {algo, ymin, ymax, xmin, xmax} = this.state
 
-    const sortMe: Array<[number, number]> = new Array()
-    for (let y of Array(side).keys()) {
-      for (let x of Array(side).keys()) {
-        const t:[number, number] = [sortMe.length, (algos as any)[algo](x,y)]
-        sortMe.push(t)
+    const inOrder: Array<Sortee> = new Array()
+    const sorted: Array<Sortee> = new Array()
+    for (let y = 0; y < side; y++) {
+      for (let x = 0; x < side; x++) {
+        const sx = xmin + (x/sideMax)*(xmax-xmin)
+        const sy = ymin + (y/sideMax)*(ymax-ymin)
+        const t:Sortee = {idx:inOrder.length, value:(algos as any)[algo](sx,sy)}
+        let {idx, value} = t; console.log({x, y, sx, sy, idx, value})
+        inOrder.push(t)
+        sorted.push(t)
       }
     }
-    sortMe.sort((a,b) => a[1] - b[1])
 
+    // Sort array
+    sorted.sort((a:Sortee,b:Sortee) => a.value - b.value)
+
+    // Reverse engineer which index each member of sorted array has
+    for (const [index, t] of sorted.entries()) {
+      t.sidx=index
+    }
+
+    // Display sorted indexes in original inOrder order
     const tableGrid:preact.JSX.Element[] = new Array()
-    for (let y of Array(side).keys()) {
+    for (let y = 0; y < side; y++) {
       const tableRow:preact.JSX.Element[] = new Array()
-      for (let x of Array(side).keys()) {
-        const idx = y*side + x // array idx
-        const t = sortMe[idx]
-        const iidx = t[0]      // sorted idx
-        const value = Math.round(t[1]*100)/100
-        const color = hsla((iidx / iidxMax)*240, 1, 0.75, 1)
-        console.log({iidx, color})
-        tableRow.push(<td style={{padding:"10px", background:color}}><b>{iidx}</b><br /><small>({value})</small></td>)
+      for (let x = 0; x < side; x++) {
+        const idx = y*side + x   // array idx
+        const t = inOrder[idx]
+        const sidx = t.sidx      // sorted idx
+        const value = Math.round(t.value*100)/100
+        const color = isFinite(value) ? hsla((sidx / iidxMax)*240, 1, 0.75, 1) : "white"
+
+        tableRow.push(<td style={{padding:"10px", background:color}}><b>{sidx}</b><br /><small>({value})</small></td>)
       }
       tableGrid.push(<tr>{tableRow}</tr>)
     }
@@ -73,8 +89,8 @@ class Content extends Component<any, any> {
         <table>
           <tr>
             <td> {/* Y axis controls */}
-              Y-min <input type="text" value={ymin} onChange={_ => this.setState({ymin:(event.target as any).value})} /><br /><br />
-              Y-max <input type="text" value={ymax} onChange={_ => this.setState({ymax:(event.target as any).value})} />
+              Y-min <input type="text" value={ymin} onChange={_ => this.setState({ymin:Number((event.target as any).value)})} /><br /><br />
+              Y-max <input type="text" value={ymax} onChange={_ => this.setState({ymax:Number((event.target as any).value)})} />
             </td>
             <td> {/* table */}
               <table style="border-spacing:5px">{tableGrid}</table>
@@ -83,9 +99,9 @@ class Content extends Component<any, any> {
           <tr>
             <td>&nbsp;</td>
             <td> {/* X axis controls */}
-              X-min <input type="text" value={xmin} onChange={_ => this.setState({xmin:(event.target as any).value})} />
+              X-min <input type="text" value={xmin} onChange={_ => this.setState({xmin:Number((event.target as any).value)})} />
               {" "}
-              X-max <input type="text" value={xmax} onChange={_ => this.setState({xmax:(event.target as any).value})}  />
+              X-max <input type="text" value={xmax} onChange={_ => this.setState({xmax:Number((event.target as any).value)})}  />
             </td>
           </tr>
         </table>
