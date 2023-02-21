@@ -25,7 +25,8 @@ const positiveFloat = (x:number) => {
 const algos = {
   add: (a:number,b:number) => a + b,
   mult: (a:number,b:number) => a * b,
-  multSigned: (a:number, b:number) => positiveFloat(a) * positiveFloat(b),
+  multSigned: (a:number,b:number) => positiveFloat(a) * positiveFloat(b),
+  logAddSigned: (a:number,b:number) => signedLog(a) + signedLog(b),
   logMult: (a:number,b:number) => Math.log(a) * Math.log(b),
   logMultSigned: (a:number,b:number) => signedLog(a) * signedLog(b)
 }
@@ -34,6 +35,7 @@ const algosExplain:any = {
   add: "x + y",
   mult: "x * y",
   multSigned: "f(x) * f(y) [where f(a) = a+2^52, any result<0 = 0]",
+  logAddSigned: "f(x) + f(y) [where f(a) = log(|x|+1)*sign(x)]",
   logMult: "log(x) * log(y)",
   logMultSigned: "f(x) * f(y) [where f(a) = log(|x|+1)*sign(x)]",
 }
@@ -98,6 +100,7 @@ class Content extends Component<any, any> {
             <option value="add">Add</option>
             <option value="mult">Multiply</option>
             <option value="multSigned">Multiply (sign-aware)</option>
+            <option value="logAddSigned">Add log (sign-aware)</option>
             <option value="logMult">Multiply log</option>
             <option value="logMultSigned">Multiply log (sign-aware)</option>
           </select>
