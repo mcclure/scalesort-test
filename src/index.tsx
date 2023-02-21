@@ -16,11 +16,26 @@ const signedLog = (x:number) => {
   return -l
 }
 
+const positiveFloat = (x:number) => {
+  const p = x + 9007199254740992
+  if (p>=0) return p
+  return 0
+}
+
 const algos = {
   add: (a:number,b:number) => a + b,
   mult: (a:number,b:number) => a * b,
+  multSigned: (a:number, b:number) => positiveFloat(a) * positiveFloat(b),
   logMult: (a:number,b:number) => Math.log(a) * Math.log(b),
   logMultSigned: (a:number,b:number) => signedLog(a) * signedLog(b)
+}
+
+const algosExplain:any = {
+  add: "x + y",
+  mult: "x * y",
+  multSigned: "f(x) * f(y) [where f(a) = a+2^52, any result<0 = 0]",
+  logMult: "log(x) * log(y)",
+  logMultSigned: "f(x) * f(y) [where f(a) = log(|x|+1)*sign(x)]",
 }
 
 const side = 11
@@ -70,7 +85,7 @@ class Content extends Component<any, any> {
         const value = Math.round(t.value*100)/100
         const color = isFinite(value) ? hsla((sidx / iidxMax)*240, 1, 0.75, 1) : "white"
 
-        tableRow.push(<td style={{padding:"10px", background:color}}><b>{sidx}</b><br /><small>({value})</small></td>)
+        tableRow.push(<td style={{padding:"10px", background:color}}><b>{sidx}</b><br /><small>({algo=="multSigned"?"...":value})</small></td>)
       }
       tableGrid.push(<tr>{tableRow}</tr>)
     }
@@ -82,9 +97,12 @@ class Content extends Component<any, any> {
           Algorithm: <select onChange={_ => this.setState({algo:(event.target as any).value})}>
             <option value="add">Add</option>
             <option value="mult">Multiply</option>
+            <option value="multSigned">Multiply (sign-aware)</option>
             <option value="logMult">Multiply log</option>
             <option value="logMultSigned">Multiply log (sign-aware)</option>
           </select>
+          {" "}
+          ({algosExplain[algo]})
         </p>
         <table>
           <tr>
@@ -105,7 +123,7 @@ class Content extends Component<any, any> {
             </td>
           </tr>
         </table>
-        <p>The goal is for the gradient to be more or less diagonal ↘ regardless of input ranges.</p>
+        <p>The goal is for the gradient red-to-blue to be more or less diagonal ↘ regardless of input ranges.</p>
       </div>
     )
   }
