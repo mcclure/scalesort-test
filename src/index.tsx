@@ -22,6 +22,8 @@ const algos = {
   logMultSigned: (a:number,b:number) => signedLog(a) * signedLog(b)
 }
 
+const side = 11
+
 class Content extends Component<any, any> {
   constructor(props:{}) {
     super(props)
@@ -29,13 +31,26 @@ class Content extends Component<any, any> {
   }
 
   render() {
-    let {algo, ymin, ymax, xmin, xmax} = this.state
+    const {algo, ymin, ymax, xmin, xmax} = this.state
 
-    let tableGrid:preact.JSX.Element[] = new Array()
-    for (let y of Array(11).keys()) {
-      let tableRow:preact.JSX.Element[] = new Array()
-      for (let x of Array(11).keys()) {
-        tableRow.push(<td>{x},{y}</td>)
+    const sortMe: Array<[number, number]> = new Array()
+    for (let y of Array(side).keys()) {
+      for (let x of Array(side).keys()) {
+        const t:[number, number] = [sortMe.length, (algos as any)[algo](x,y)]
+        sortMe.push(t)
+      }
+    }
+    sortMe.sort((a,b) => a[1] - b[1])
+
+    const tableGrid:preact.JSX.Element[] = new Array()
+    for (let y of Array(side).keys()) {
+      const tableRow:preact.JSX.Element[] = new Array()
+      for (let x of Array(side).keys()) {
+        const idx = y*side + x // array idx
+        const t = sortMe[idx]
+        const iidx = t[0]      // sorted idx
+        const value = Math.round(t[1]*100)/100
+        tableRow.push(<td style="padding:10px; background-color:#BBBBBB"><b>{iidx}</b><br /><small>({value})</small></td>)
       }
       tableGrid.push(<tr>{tableRow}</tr>)
     }
@@ -58,7 +73,7 @@ class Content extends Component<any, any> {
               Y-max <input type="text" value={ymax} onChange={_ => this.setState({ymax:(event.target as any).value})} />
             </td>
             <td> {/* table */}
-              <table>{tableGrid}</table>
+              <table style="border-spacing:5px">{tableGrid}</table>
             </td>
           </tr>
           <tr>
